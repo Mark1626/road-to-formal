@@ -1,20 +1,10 @@
-module logic-puzzle where
+module knight-knaves where
 
-import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; refl; cong; sym)
-open Eq.≡-Reasoning
-open import Data.Nat using (ℕ; zero; suc; _<_; _≤_; _+_)
-open import Data.Product using (_×_; Σ; ∃; Σ-syntax; ∃-syntax)
-open import Data.Nat.Properties
-
-open import Data.Unit using (⊤; tt)
-open import Data.Empty using (⊥; ⊥-elim)
+open import Relation.Binary.PropositionalEquality using (_≡_; _≢_; refl)
 open import Relation.Nullary using (¬_)
-
--- https://pwparchive.wordpress.com/2012/09/06/logical-puzzles-in-agda/
--- Using standard library rather than defining it here
-
--- On the day of his arrival, Abercrombie came across three inhabitants, whom we will call A, B and C. He asked A: “Are you a knight or a knave?” A answered, but so indistinctly that Abercrombie could not understand what he said. He then asked B: “What did he say?” B replied: “He said that he is a knave.” At this point, C piped up and said: “Don’t believe that; it’s a lie!”. Was C a knight or a knave?
+open import Data.Product using (_×_; proj₁; proj₂)
+open import Data.Sum using (_⊎_; inj₁; inj₂)
+open import Data.Empty using (⊥)
 
 data Person : Set where
   knight : Person
@@ -23,6 +13,11 @@ data Person : Set where
 says : Person → Set → Set
 says knight p = p
 says knave  p = ¬ p
+
+-- From https://pwparchive.wordpress.com/2012/09/06/logical-puzzles-in-agda/
+
+-- On the day of his arrival, Abercrombie came across three inhabitants, whom we will call A, B and C. He asked A: “Are you a knight or a knave?” A answered, but so indistinctly that Abercrombie could not understand what he said. He then asked B: “What did he say?” B replied: “He said that he is a knave.” At this point, C piped up and said: “Don’t believe that; it’s a lie!”. Was C a knight or a knave?
+
 
 data Solution₀ : Set where
   soln₀ : (a : Person) → (b : Person) → (c : Person) →
@@ -69,7 +64,7 @@ soln = predicateTrans f proof
         proof A knight = 
           record
             { to = λ prf → prf
-            ; from = λ prf → {!prf!}
+            ; from = λ prf → prf
             }
         proof A knave = 
           record
@@ -77,3 +72,18 @@ soln = predicateTrans f proof
             ; from = λ prf → elim-¬¬ prf
             }
 
+--- Some puzzles on my own
+
+-- From https://philosophy.hku.hk/think/logic/knights.php
+-- You meet two inhabitants: Zoey and Mel. Zoey tells you that Mel is a knave. Mel says, “Neither Zoey nor I are knaves.”
+
+data Solution₂ : Set where
+    soln₂ : (Zoey : Person) → (Mel : Person) →
+      (says Zoey (Mel ≡ knave)) →
+      (says Mel ((Zoey ≢ knave) ⊎ (Mel ≢ knave))) →
+      Solution₂
+
+-- Manual interactive proof
+
+-- _ : Solution₂
+-- _ = soln₂ knight knave refl λ{ (inj₁ x) → {!!} ; (inj₂ y) → {!!}}

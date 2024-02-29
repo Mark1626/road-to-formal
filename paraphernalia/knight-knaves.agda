@@ -2,9 +2,9 @@ module knight-knaves where
 
 open import Relation.Binary.PropositionalEquality using (_≡_; _≢_; refl)
 open import Relation.Nullary using (¬_)
-open import Data.Product using (_×_; proj₁; proj₂)
+open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
 open import Data.Sum using (_⊎_; inj₁; inj₂)
-open import Data.Empty using (⊥)
+open import Data.Empty using (⊥; ⊥-elim)
 
 data Person : Set where
   knight : Person
@@ -53,11 +53,15 @@ data PredicateTransform : Set₁ where
     (OldP p) ⇔ (says p ((f OldP) p))) →
      PredicateTransform
 
-postulate
-  elim-¬¬ : {A : Set} → ¬ ¬ A → A
+¬-elim : {A : Set} → ¬ A → A → ⊥
+¬-elim ¬x x = ¬x x
 
-soln : PredicateTransform
-soln = predicateTrans f proof
+-- Not provable in intuitional logic
+postulate
+  ¬¬-elim : {A : Set} → ¬ ¬ A → A
+
+soln₁ : PredicateTransform
+soln₁ = predicateTrans f proof
   where f : Prp → Prp
         f q p = says p (q p)
         proof : (A : Prp) → (p : Person) → (A p) ⇔ (says p ((f A) p))
@@ -68,8 +72,8 @@ soln = predicateTrans f proof
             }
         proof A knave = 
           record
-            { to = λ prf → λ z → z prf
-            ; from = λ prf → elim-¬¬ prf
+            { to = λ prf → λ x → x prf
+            ; from = λ prf → ¬¬-elim prf
             }
 
 --- Some puzzles on my own
@@ -77,13 +81,19 @@ soln = predicateTrans f proof
 -- From https://philosophy.hku.hk/think/logic/knights.php
 -- You meet two inhabitants: Zoey and Mel. Zoey tells you that Mel is a knave. Mel says, “Neither Zoey nor I are knaves.”
 
-data Solution₂ : Set where
-    soln₂ : (Zoey : Person) → (Mel : Person) →
+elim-≢ : ¬ (knight ≡ knave)
+elim-≢ = λ ()
+
+data Solution₃ : Set where
+    soln₃ : (Zoey : Person) → (Mel : Person) →
       (says Zoey (Mel ≡ knave)) →
-      (says Mel ((Zoey ≢ knave) ⊎ (Mel ≢ knave))) →
-      Solution₂
+      (says Mel ((¬ (Zoey ≡ knave)) × (¬ (Mel ≡ knave)))) →
+      Solution₃
 
 -- Manual interactive proof
 
--- _ : Solution₂
--- _ = soln₂ knight knave refl λ{ (inj₁ x) → {!!} ; (inj₂ y) → {!!}}
+f : ⊥ → knave ≡ knight
+f ()
+
+_ : Solution₃
+_ = soln₃ knight knave refl λ{ ⟨ knv≢kni , knv≢knv ⟩ → ¬-elim knv≢knv refl}

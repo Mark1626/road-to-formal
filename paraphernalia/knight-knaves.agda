@@ -79,6 +79,7 @@ soln₁ = predicateTrans f proof
 --- Some puzzles on my own
 
 -- From https://philosophy.hku.hk/think/logic/knights.php
+-- Puzzle #1
 -- You meet two inhabitants: Zoey and Mel. Zoey tells you that Mel is a knave. Mel says, “Neither Zoey nor I are knaves.”
 
 elim-≢ : ¬ (knight ≡ knave)
@@ -97,3 +98,22 @@ f ()
 
 _ : Solution₃
 _ = soln₃ knight knave refl λ{ ⟨ knv≢kni , knv≢knv ⟩ → ¬-elim knv≢knv refl}
+
+---
+
+-- Puzzle #2
+-- You meet two inhabitants: Peggy and Zippy. Peggy tells you that “of Zippy and I, exactly one is a knight'. Zippy tells you that only a knave would say that Peggy is a knave.
+
+data Solution₄ : Set where
+  soln₄ : (Peggy : Person) → (Zippy : Person)
+    → (says Peggy ((Zippy ≡ knight × Peggy ≢ knight) ⊎ (Zippy ≢ knight × Peggy ≡ knight)))
+    → (says Zippy (says knave (Peggy ≡ knave)))
+    → Solution₄
+
+_ : Solution₄
+
+_ = soln₄ knave knave (λ{ (inj₁ ()) ; (inj₂ ())}) (λ knv≢knv → ¬-elim knv≢knv refl)
+
+-- _ = soln₄ knave knight (λ{ (inj₁ x) → {!!}}) λ{ x → {!!}}
+-- _ = soln₄ knight knave {!!} λ x → {!!}
+

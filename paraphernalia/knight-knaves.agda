@@ -1,10 +1,11 @@
-module knight-knaves where
+module paraphernalia.knight-knaves where
 
 open import Relation.Binary.PropositionalEquality using (_≡_; _≢_; refl)
 open import Relation.Nullary using (¬_)
 open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
 open import Data.Sum using (_⊎_; inj₁; inj₂)
 open import Data.Empty using (⊥; ⊥-elim)
+open import plfa.part1.Isomorphism using (_≃_)
 
 data Person : Set where
   knight : Person
@@ -13,6 +14,7 @@ data Person : Set where
 says : Person → Set → Set
 says knight p = p
 says knave  p = ¬ p
+
 
 -- From https://pwparchive.wordpress.com/2012/09/06/logical-puzzles-in-agda/
 
@@ -93,9 +95,6 @@ data Solution₃ : Set where
 
 -- Manual interactive proof
 
-f : ⊥ → knave ≡ knight
-f ()
-
 _ : Solution₃
 _ = soln₃ knight knave refl λ{ ⟨ knv≢kni , knv≢knv ⟩ → ¬-elim knv≢knv refl}
 
@@ -116,4 +115,14 @@ _ = soln₄ knave knave (λ{ (inj₁ ()) ; (inj₂ ())}) (λ knv≢knv → ¬-el
 
 -- _ = soln₄ knave knight (λ{ (inj₁ x) → {!!}}) λ{ x → {!!}}
 -- _ = soln₄ knight knave {!!} λ x → {!!}
+
+-- There are two people, A and B. A says "We are both Knaves"
+
+data Solution₅ : Set where
+  soln₅ : (A : Person) → (B : Person)
+    → (says A ((A ≡ knave) × (B ≡ knave)))
+    → Solution₅
+
+_ : Solution₅
+_ = soln₅ knave knight λ()
 

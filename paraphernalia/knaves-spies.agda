@@ -128,8 +128,6 @@ answer₂ = soln₁ spy knave knave spy knave knave
 -- Spies - A D
 -- Knave - B C E F
 
---
-
 -- 𝐴 says to 𝐵 : 𝐹 is a Spy, 𝐶 is a Knave.
 -- 𝐵 says to 𝐶 : If 𝐷 is a Knave, then so is 𝐸
 -- 𝐶 says to 𝐷 : If 𝐴 is a Knave, then 𝐹 is a Spy
@@ -142,4 +140,3 @@ answer₃ = soln₁ spy knave spy spy knave knave
   (λ())
   ⟨ {!!} , {!!} ⟩
   λ{ (inj₁ x) → elim-absurd₂ x ; (inj₂ y) → elim-absurd₁ y}
-

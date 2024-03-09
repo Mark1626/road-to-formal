@@ -1,6 +1,6 @@
 # Summary - Feb 2024
 
-<--
+<!--
 ```agda
 module summary where
 
@@ -70,10 +70,9 @@ _ = soln₃ knight knave
 
 **Example 2**
 
+```agda
 -- You meet two inhabitants: Peggy and Zippy. Peggy tells you that “of Zippy and I, exactly one is a knight'. Zippy tells you that only a knave would say that Peggy is a knave.
 
-
-```agda
 data Solution₄ : Set where
   soln₄ : (Peggy : Person₁) → (Zippy : Person₁)
     → (says Peggy ((Zippy ≡ knight × Peggy ≢ knight) ⊎ (Zippy ≢ knight × Peggy ≡ knight)))
@@ -104,9 +103,11 @@ _ = soln₅ knave knight λ()
 
 ```
 
+---
+
 ## Knaves and Spies
 
-This was a variant that I found from a StackExchange question.
+This was a variant that I found from a StackExchange question.  
 https://math.stackexchange.com/questions/2400914/why-do-i-keep-running-into-contradictions-in-this-problem-knights-and-knaves-va
 
 
@@ -136,6 +137,8 @@ says are negations.
 -- are Spies, and which are Knaves.
 ```
 
+**A small issue modelling implication**
+
 I ran into a far bit of trouble trying to model the implications
 statements stmt₂, stmt₃.
 
@@ -151,7 +154,7 @@ postulate the law of excluded middle `A ⊎ ¬ A`. Still when I had to match
 the cases I ran into proving issues proving both `inj₁` and `inj₂`. 
 
 I later went with this theory. When A, `(A → B)` implies `(A × B)`, I was
-able to prove this and use it to solve the puzzle. When ¬A, I was not
+able to prove this and use it to solve the puzzle. When `¬A`, I was not
 able to find a solution.
 
 ```
@@ -161,6 +164,8 @@ if-⊤-implies-× a x = ⟨ a , x a ⟩
 postulate
   if-⊥-implies : ∀ {A B : Set} → ¬ A → (A → B) → ⊥
 ```
+
+**Solution**
 
 ```agda
 data Solution₁ : Set where
@@ -174,6 +179,8 @@ data Solution₁ : Set where
     → Solution₁
 ```
 
+**Answer₁**
+
 ```agda
 answer₁ : Solution₁
 answer₁ = soln₁ spy₂ spy₂ knave₂ spy₂ spy₂ spy₂
@@ -185,6 +192,8 @@ answer₁ = soln₁ spy₂ spy₂ knave₂ spy₂ spy₂ spy₂
 -- Spies - A B D E F
 -- Knave - C
 ```
+
+**Answer₂**
 
 ```agda
 answer₂ : Solution₁
@@ -199,16 +208,19 @@ answer₂ = soln₁ spy₂ knave₂ knave₂ spy₂ knave₂ knave₂
 
 ```
 
+**Answer₃**
+
+This solution is supposed to be valid `A≡spy B≡knave C≡spy D≡spy E≡knave F≡knave`.
+How ever I was unable to prove  statement₃ because I made (A → B) as (A × B)
+Maybe this requires modelling `(A → B) as (¬A ⊎ B)`
+
 ```
--- Unable to prove statement₃ because I made (A → B) as (A × B)
--- Maybe could have modelled (A → B) as (¬A ⊎ B)
 -- answer₃ : Solution₁
 -- answer₃ = soln₁ spy knave spy spy knave knave
 --  (λ())
 --  (λ())
 --  ⟨ {!!} , {!!} ⟩
 --  λ{ (inj₁ x) → elim-absurd₂ x ; (inj₂ y) → elim-absurd₁ y}
-
 ```
 
 ## What's next

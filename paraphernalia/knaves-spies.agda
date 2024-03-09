@@ -1,11 +1,12 @@
 module paraphernalia.knaves-spies where
 
-open import Relation.Binary.PropositionalEquality using (_≡_; _≢_; refl)
-open import Relation.Nullary using (¬_)
+open import Relation.Binary.PropositionalEquality
+open import Relation.Nullary
 open import Data.Product using (_×_; proj₁; proj₂;
   Σ; Σ-syntax; ∃; ∃-syntax) renaming (_,_ to ⟨_,_⟩)
 open import Data.Sum using (_⊎_; inj₁; inj₂; [_,_])
-open import Data.Empty using (⊥; ⊥-elim)
+open import Data.Empty
+open import Function
 open import plfa.part1.Isomorphism using (_⇔_)
 
 -- Knight and Knaves variant
@@ -41,15 +42,38 @@ knave-×-elim = λ a×b ¬a×b → ¬-elim ¬a×b a×b
 -- Determine which of the persons 𝐴, 𝐵, 𝐶, 𝐷 and 𝐸
 -- are Spies, and which are Knaves.
 
+-- Statements If A then B
+
+if-⊤-implies-× : ∀ {A B : Set} → A → (A → B) → (A × B)
+if-⊤-implies-× a x = ⟨ a , x a ⟩
+
+if-⊥-implies : ∀ {A B : Set} → ¬ A → (A → B) → ⊥
+if-⊥-implies ¬a a→b = {!()!}
+
 data Solution₁ : Set where
   soln₁ : (A : Person) → (B : Person)
     → (C : Person) → (D : Person)
     → (E : Person) → (F : Person)
     → (says A B ((F ≡ spy) × (C ≡ knave)))
-    → (says B C ( ((D ≡ knave) × (E ≡ knave))))
-    → (says C D (((A ≡ knave) × (F ≡ spy))))
+    → (says B C ((D ≡ knave) × (E ≡ knave)))
+    → (says C D ((A ≡ knave) × (F ≡ spy)))
     → (says D E ((F ≡ spy) ⊎ (A ≡ knave)))
     → Solution₁
+
+absurd : ⊥ → spy ≡ knave
+absurd ()
+
+elim-absurd₁ : spy ≡ knave → ⊥
+elim-absurd₁ ()
+
+elim-absurd₂ : knave ≡ spy → ⊥
+elim-absurd₂ ()
+
+elim-absurd→ : ((spy ≡ knave) → (spy ≡ knave)) → (spy ≡ knave) → ⊥
+elim-absurd→ x ⊥spy≡knave = elim-absurd₁ (x ⊥spy≡knave)
+
+-- contraposition : ∀ {A B : Set} → (A → B) → (¬ B → ¬ A)
+-- contraposition f ¬y ¬x = ¬y (f x)
 
 -- Trying with Agda's auto solver
 
@@ -65,9 +89,20 @@ data Solution₁ : Set where
 -- The statements stmt₂ and stmt₃ are to be filled
 -- 
 
-_ : Solution₁
-_ = soln₁ spy spy knave spy spy spy
-  ⟨ refl , refl ⟩ (λ()) (λ()) (inj₁ refl)
+-- ((D ≢ knave) ⊎ ((D ≡ knave) × (E ≡ knave))))
+-- _ : Solution₁
+-- _ = soln₁ spy spy knave spy spy spy
+--   ⟨ refl , refl ⟩
+--  (λ{ (inj₁ x) → contradiction {!!} x })
+--   (λ{ (inj₁ x) → {!!}})
+--   (inj₁ refl)
+
+answer₁ : Solution₁
+answer₁ = soln₁ spy spy knave spy spy spy
+  ⟨ refl , refl ⟩
+  (λ())
+  (λ())
+  (inj₁ refl)
 
 -- Spies - A B D E F
 -- Knave - C
@@ -83,14 +118,28 @@ _ = soln₁ spy spy knave spy spy spy
 
 -- The auto solver can find a solution, let's populate the hole of
 
-_ : Solution₁
-_ = soln₁ spy knave knave spy knave knave
-  (λ()) (λ()) (λ()) λ{ (inj₁ ()) ; (inj₂ ())}
+answer₂ : Solution₁
+answer₂ = soln₁ spy knave knave spy knave knave
+  (λ())
+  (λ())
+  (λ())
+  λ{ (inj₁ ()) ; (inj₂ ())}
 
 -- Spies - A D
 -- Knave - B C E F
 
-_ : Solution₁
-_ = soln₁ spy knave spy spy knave knave
-  (λ()) {!!} ⟨ {!!} , {!!} ⟩ λ{ (inj₁ x) → {!!} ; (inj₂ y) → {!!}}
+--
+
+-- 𝐴 says to 𝐵 : 𝐹 is a Spy, 𝐶 is a Knave.
+-- 𝐵 says to 𝐶 : If 𝐷 is a Knave, then so is 𝐸
+-- 𝐶 says to 𝐷 : If 𝐴 is a Knave, then 𝐹 is a Spy
+-- 𝐷 says to 𝐸 : Either 𝐹 is a Spy, or 𝐴 is a Knave
+
+-- Unable to prove statement₃ because if made (A → B) as (A × B)
+answer₃ : Solution₁
+answer₃ = soln₁ spy knave spy spy knave knave
+  (λ())
+  (λ())
+  ⟨ {!!} , {!!} ⟩
+  λ{ (inj₁ x) → elim-absurd₂ x ; (inj₂ y) → elim-absurd₁ y}
 

@@ -109,12 +109,22 @@ data Solution₄ : Set where
     → (says Zippy (says knave (Peggy ≡ knave)))
     → Solution₄
 
-_ : Solution₄
+-- possibility₁ : Solution₄
+-- possibility₁ = soln₄ knight knight
+--  {!!}
+--  λ ()
 
-_ = soln₄ knave knave (λ{ (inj₁ ()) ; (inj₂ ())}) (λ knv≢knv → ¬-elim knv≢knv refl)
+-- possibility₂ : Solution₄
+-- possibility₂ = soln₄ knight knave
+--  (inj₂ ⟨ (λ ()) , refl ⟩)
+--  {!!}
 
--- _ = soln₄ knave knight (λ{ (inj₁ x) → {!!}}) λ{ x → {!!}}
--- _ = soln₄ knight knave {!!} λ x → {!!}
+¬¬-intro : ∀ {A : Set} → A → ¬ ¬ A
+¬¬-intro x  =  λ{¬x → ¬x x}
+
+answer₄ = soln₄ knave knave
+  (λ{ (inj₁ ()) ; (inj₂ ())})
+  (¬¬-intro refl)
 
 -- There are two people, A and B. A says "We are both Knaves"
 

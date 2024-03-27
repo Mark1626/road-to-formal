@@ -2,10 +2,11 @@
 
 <!--
 ```agda
-module fibonnaci where
+module paraphernalia.fibonnaci where
 
 open import Data.Nat
 open import Data.Nat.Properties
+open import Data.Nat.Tactic.RingSolver
 import Relation.Binary.PropositionalEquality as Peq
 open Peq
 open Peq.≡-Reasoning
@@ -192,6 +193,24 @@ theory₄ (2+ n) = begin
 ---
 
 ### fib (2+ (2 * n)) ≡ fib (suc n) * fib (suc n) + 2 * fib (suc n) * fib (n)
+
+```
+
+a+b²≡a²+2ab+b² : ∀ (a b : ℕ) → a * a + 2 * a * b + b * b ≡ (a + b) * (a + b)
+a+b²≡a²+2ab+b² = solve-∀
+
+theory₅ : ∀ (n : ℕ) → fib (suc n) * fib (suc n) + 2 * fib (suc n) * fib n ≡ fib (2+ (2 * n))
+theory₅ zero = refl
+theory₅ (suc n) = {!begin
+  fn+2 * fn+2 + 2 * fn+2 * fn+1               ≡⟨⟩
+  (fn+1 + fn) * (fn+1 + fn) * 2 * fn+2 * fn+1 ≡⟨ cong (_+ (2 * fn+2 * fn+1) () ⟩!}
+  where
+    f2n+2   = fib (2+ (2 * n))
+    f2n+2+1 = fib (suc (2+ (2 * n)))
+    fn+2    = fib (2+ n)
+    fn+1    = fib (suc n)
+    fn      = fib n
+```
 
 ---
 

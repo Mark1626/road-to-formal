@@ -4,18 +4,30 @@
 ```agda
 module paraphernalia.fibonnaci where
 
-open import Data.Nat
-open import Data.Nat.Properties
+open import Data.Nat using (ℕ; suc; zero; _+_; _*_; _≤_; s≤s; z≤n; _∸_)
+open import Data.Nat.Properties using (
+  *-suc;
+  *-comm;
+  *-distribʳ-+;
+  *-distribˡ-+;
+  m≤n⇒m≤n+o;
+  +-∸-comm;
+  +-comm;
+  +-suc;
+  +-identityʳ;
+  +-assoc)
 open import Data.Nat.Tactic.RingSolver
 import Relation.Binary.PropositionalEquality as Peq
-open Peq
+open Peq using (cong; cong₂; refl; sym; _≡_)
 open Peq.≡-Reasoning
 
 open import Data.Nat.GCD
 open import Data.Nat.Divisibility
 
-open import Data.Product
+open import Data.Product using (_,_; proj₁; proj₂)
 open import Function
+
+pattern 2+ n = suc (suc n)
 ```
 -->
 
@@ -40,7 +52,7 @@ _ = refl
 
 ## Properties
 
-### **∑f(n) ≡ f(2n+1) - 1 **
+### ∑f(n) ≡ f(2n+1) - 1
 
 ```agda
 ∑fib : ℕ → ℕ
@@ -194,22 +206,50 @@ theory₄ (2+ n) = begin
 
 ### fib (2+ (2 * n)) ≡ fib (suc n) * fib (suc n) + 2 * fib (suc n) * fib (n)
 
+This one has a mutual proof `fib 2n + 2` needs the proof of `fib 2n + 1` and vice versa
+
 ```
 
 a+b²≡a²+2ab+b² : ∀ (a b : ℕ) → a * a + 2 * a * b + b * b ≡ (a + b) * (a + b)
 a+b²≡a²+2ab+b² = solve-∀
 
-theory₅ : ∀ (n : ℕ) → fib (suc n) * fib (suc n) + 2 * fib (suc n) * fib n ≡ fib (2+ (2 * n))
-theory₅ zero = refl
-theory₅ (suc n) = {!begin
-  fn+2 * fn+2 + 2 * fn+2 * fn+1               ≡⟨⟩
-  (fn+1 + fn) * (fn+1 + fn) * 2 * fn+2 * fn+1 ≡⟨ cong (_+ (2 * fn+2 * fn+1) () ⟩!}
+theory₅+2 : ∀ (n : ℕ) →  fib (2+  (2 * n)) ≡ fib (suc n) * fib (suc n) + 2 * fib (suc n) * fib n
+theory₅+1 : ∀ (n : ℕ) →  fib (suc (2 * n)) ≡ fib (suc n) * fib (suc n) + fib n * fib n
+
+theory₅+1 zero = refl
+theory₅+1 (suc n) = 
+  begin
+    fib (suc (2 * (suc n)))
+  ≡⟨ cong (λ v → fib (suc v)) (*-suc 2 n) ⟩
+    fib (suc (2 + 2 * n))
+  ≡⟨⟩
+    fib (2+ (2 * n)) + fib (suc (2 * n))
+  ≡⟨ cong₂ (λ v₁ v₂ → v₁ + v₂) (theory₅+2 n) (theory₅+1 n) ⟩
+   (fib (suc n) * fib (suc n) + 2 * fib (suc n) * fib n) + (fib (suc n) * fib (suc n) + fib n * fib n)
+  ≡⟨ (rearrange (fib (suc n)) (fib n)) ⟩
+   (fib (suc n) + fib n) * (fib (suc n) + fib n) + fib (suc n) * fib (suc n)
+  ∎
   where
-    f2n+2   = fib (2+ (2 * n))
-    f2n+2+1 = fib (suc (2+ (2 * n)))
-    fn+2    = fib (2+ n)
-    fn+1    = fib (suc n)
-    fn      = fib n
+    rearrange : ∀ (a b : ℕ) → (a * a + 2 * a * b) + (a * a + b * b) ≡ (a + b) * (a + b) + a * a
+    rearrange = solve-∀
+
+theory₅+2 zero = refl
+theory₅+2 (suc n) = 
+  begin
+    fib (2+ (2 * (suc n)))
+  ≡⟨ cong (λ v → fib (2+ v)) (*-suc 2 n) ⟩
+    fib (2+ (2 + 2 * n))
+  ≡⟨⟩
+    (fib (2 + 2 * n) + fib (suc (2 * n))) + fib (2+ (2 * n))
+  ≡⟨ cong₂ (λ v₁ v₂ → v₂ + v₁ + v₂) (theory₅+1 n) (theory₅+2 n) ⟩
+    (fib (suc n) * fib (suc n) + 2 * fib (suc n) * fib n) + (fib (suc n) * fib (suc n) + fib n * fib n) + (fib (suc n) * fib (suc n) + 2 * fib (suc n) * fib n)
+  ≡⟨ (rearrange (fib (suc n)) (fib n)) ⟩
+    (fib (suc n) + fib n) * (fib (suc n) + fib n) + 2 * (fib (suc n) + fib n) * fib (suc n)
+  ∎
+
+  where
+    rearrange : ∀ (a b : ℕ) → (a * a + 2 * a * b) + (a * a + b * b) + (a * a + 2 * a * b) ≡ (a + b) * (a + b) + 2 * (a + b) * a
+    rearrange = solve-∀
 ```
 
 ---
